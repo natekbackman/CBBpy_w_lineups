@@ -87,6 +87,8 @@ NON_SHOT_TYPES = [
     "Steal",
     "Foul",
     "End",
+    "subbing in",
+    "subbing out",
 ]
 SHOT_TYPES = [
     "Three Point Jumper",
@@ -1085,8 +1087,6 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
             1200 + x if half_num == 1 else x
             for x, half_num in zip(pd_secs_left, periods)
         ]
-        pd_type = "half"
-        pd_type_sec = "secs_left_half"
     # women (after 14-15) use quarters
     else:
         reg_secs_left = [
@@ -1097,68 +1097,6 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
             )
             for x, qt_num in zip(pd_secs_left, periods)
         ]
-        pd_type = "quarter"
-        pd_type_sec = "secs_left_qt"
-
-    sc_play = [True if "scoringPlay" in x.keys() else False for x in all_plays]
-    is_assisted = [
-        True if ("text" in x.keys() and "assisted" in x["text"].lower()) else False
-        for x in all_plays
-    ]
-
-    # ASSIGN PLAY TYPES
-    p_types = []
-
-    for x in all_plays:
-        if not "text" in x.keys():
-            p_types.append("")
-            continue
-
-        play = x["text"]
-
-        if not type(play) == str:
-            play = ""
-
-        added = False
-        for pt in NON_SHOT_TYPES:
-            if pt in play:
-                p_types.append(pt.lower())
-                added = True
-                break
-        if not added:
-            for st in SHOT_TYPES:
-                if st in play:
-                    p_types.append(st.lower())
-                    added = True
-                    break
-
-        if not added:
-            p_types.append("")
-
-    # FIND SHOOTERS
-    shooting_play = [
-        True if x in (y.lower() for y in SHOT_TYPES) else False for x in p_types
-    ]
-
-    scorers = [x[0].split(" made ")[0] if x[1] else "" for x in zip(descs, sc_play)]
-
-    non_scorers = [
-        (
-            x[0].split(" missed ")[0]
-            if x[1] in (y.lower() for y in SHOT_TYPES) and not x[2]
-            else ""
-        )
-        for x in zip(descs, p_types, sc_play)
-    ]
-
-    shooters = [x[0] if not x[0] == "" else x[1] for x in zip(scorers, non_scorers)]
-
-    assisted_pls = [
-        x[0].split("Assisted by ")[-1].replace(".", "") if x[1] else ""
-        for x in zip(descs, is_assisted)
-    ]
-
-    is_three = ["three point" in x.lower() for x in descs]
 
     data = {
         "game_id": game_id,
@@ -1167,89 +1105,15 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         "play_desc": descs,
         "home_score": hscores,
         "away_score": ascores,
-        pd_type: periods,
-        pd_type_sec: pd_secs_left,
+        "half": periods,
+        "secs_left_half": pd_secs_left,
         "secs_left_reg": reg_secs_left,
         "play_team": teams,
-        "play_type": p_types,
-        "shooting_play": shooting_play,
-        "scoring_play": sc_play,
-        "is_three": is_three,
-        "shooter": shooters,
-        "is_assisted": is_assisted,
-        "assist_player": assisted_pls,
     }
 
     df = pd.DataFrame(data)
 
-    # add shot data if it exists
-    is_shotchart = "shtChrt" in gamepackage
-
-    if is_shotchart:
-        chart = gamepackage["shtChrt"]["plays"]
-
-        shotteams = [x["homeAway"] for x in chart]
-        shotdescs = [x["text"] for x in chart]
-        xs = [50 - int(x["coordinate"]["x"]) for x in chart]
-        ys = [int(x["coordinate"]["y"]) for x in chart]
-
-        shot_data = {"team": shotteams, "play_desc": shotdescs, "x": xs, "y": ys}
-
-        shot_df = pd.DataFrame(shot_data)
-
-        # shot matching
-        shot_info = {
-            "shot_x": [],
-            "shot_y": [],
-        }
-        shot_count = 0
-
-        for play, isshot in zip(df.play_desc, df.shooting_play):
-            if shot_count >= len(shot_df):
-                shot_info["shot_x"].append(np.nan)
-                shot_info["shot_y"].append(np.nan)
-                continue
-
-            if not isshot:
-                shot_info["shot_x"].append(np.nan)
-                shot_info["shot_y"].append(np.nan)
-                continue
-
-            if "free throw" in play.lower():
-                shot_info["shot_x"].append(np.nan)
-                shot_info["shot_y"].append(np.nan)
-                shot_count += 1
-                continue
-
-            shot_play = shot_df.play_desc.iloc[shot_count]
-
-            if play == shot_play:
-                shot_info["shot_x"].append(shot_df.x.iloc[shot_count])
-                shot_info["shot_y"].append(shot_df.y.iloc[shot_count])
-                shot_count += 1
-            else:
-                shot_info["shot_x"].append(np.nan)
-                shot_info["shot_y"].append(np.nan)
-
-        # make sure that length of shot data matches number of shots in PBP data
-        if (not (len(shot_info["shot_x"]) == len(df))) or (
-            not (len(shot_info["shot_y"]) == len(df))
-        ):
-            _log.warning(
-                f'{game_id} - Shot data length does not match PBP data'
-            )
-            df["shot_x"] = np.nan
-            df["shot_y"] = np.nan
-            return df.sort_values(by=[pd_type, pd_type_sec], ascending=[True, False])
-
-        df["shot_x"] = shot_info["shot_x"]
-        df["shot_y"] = shot_info["shot_y"]
-
-    else:
-        df["shot_x"] = np.nan
-        df["shot_y"] = np.nan
-
-    return df.sort_values(by=[pd_type, pd_type_sec], ascending=[True, False])
+    return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
 
 
 def _get_game_info_helper(gamepackage, game_id, game_type):
