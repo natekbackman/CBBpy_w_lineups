@@ -1179,7 +1179,7 @@ def _get_game_info_helper(gamepackage, game_id, game_type):
     home_win = True if home_score > away_score and gm_status == 'Final' else False
 
     is_postseason = True if more_info["seasonType"] == 3 else False
-    is_conference = more_info["isConferenceGame"]
+    # is_conference = more_info["isConferenceGame"]
 
     if "neutralSite" in more_info:
         is_neutral = True
@@ -1226,7 +1226,7 @@ def _get_game_info_helper(gamepackage, game_id, game_type):
         home_spread,
         home_win,
         num_ots,
-        is_conference,
+        # is_conference,
         is_neutral,
         is_postseason,
         tournament,
@@ -1258,7 +1258,7 @@ def _get_game_info_helper(gamepackage, game_id, game_type):
         "home_point_spread",
         "home_win",
         "num_ots",
-        "is_conference",
+        # "is_conference",
         "is_neutral",
         "is_postseason",
         "tournament",
