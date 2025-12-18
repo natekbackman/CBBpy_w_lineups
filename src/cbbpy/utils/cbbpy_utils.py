@@ -792,8 +792,8 @@ def _get_game_boxscore_helper(boxscore, game_id):
         ]
         tm1_st_nm = [
             (
-                tm1_starters[i]["athlt"]["shrtNm"]
-                if "shrtNm" in tm1_starters[i]["athlt"].keys()
+                tm1_starters[i]["athlt"]["lngNm"]
+                if "lngNm" in tm1_starters[i]["athlt"].keys()
                 else ""
             )
             for i in range(len(tm1_starters))
@@ -838,8 +838,8 @@ def _get_game_boxscore_helper(boxscore, game_id):
         ]
         tm1_bn_nm = [
             (
-                tm1_bench[i]["athlt"]["shrtNm"]
-                if "shrtNm" in tm1_bench[i]["athlt"].keys()
+                tm1_bench[i]["athlt"]["lngNm"]
+                if "lngNm" in tm1_bench[i]["athlt"].keys()
                 else ""
             )
             for i in range(len(tm1_bench))
@@ -906,8 +906,8 @@ def _get_game_boxscore_helper(boxscore, game_id):
         ]
         tm2_st_nm = [
             (
-                tm2_starters[i]["athlt"]["shrtNm"]
-                if "shrtNm" in tm2_starters[i]["athlt"].keys()
+                tm2_starters[i]["athlt"]["lngNm"]
+                if "lngNm" in tm2_starters[i]["athlt"].keys()
                 else ""
             )
             for i in range(len(tm2_starters))
@@ -952,8 +952,8 @@ def _get_game_boxscore_helper(boxscore, game_id):
         ]
         tm2_bn_nm = [
             (
-                tm2_bench[i]["athlt"]["shrtNm"]
-                if "shrtNm" in tm2_bench[i]["athlt"].keys()
+                tm2_bench[i]["athlt"]["lngNm"]
+                if "lngNm" in tm2_bench[i]["athlt"].keys()
                 else ""
             )
             for i in range(len(tm2_bench))
