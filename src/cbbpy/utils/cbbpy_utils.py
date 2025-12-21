@@ -1171,6 +1171,8 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         shot_info = {
             "shot_x": [],
             "shot_y": [],
+            "shot_value": [],
+            "shot_type": [],
         }
         shot_count = 0
 
@@ -1178,11 +1180,15 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
             if shot_count >= len(shot_df):
                 shot_info["shot_x"].append(np.nan)
                 shot_info["shot_y"].append(np.nan)
+                shot_info["shot_value"].append(np.nan)
+                shot_info["shot_type"].append(np.nan)
                 continue
 
             if not isshot:
                 shot_info["shot_x"].append(np.nan)
                 shot_info["shot_y"].append(np.nan)
+                shot_info["shot_value"].append(np.nan)
+                shot_info["shot_type"].append(np.nan)
                 continue
 
             # if "free throw" in play.lower():
@@ -1196,10 +1202,14 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
             if play == shot_play:
                 shot_info["shot_x"].append(shot_df.x.iloc[shot_count])
                 shot_info["shot_y"].append(shot_df.y.iloc[shot_count])
+                shot_info["shot_value"].append(shot_df.shot_value.iloc[shot_count])
+                shot_info["shot_type"].append(shot_df.shot_type.iloc[shot_count])
                 shot_count += 1
             else:
                 shot_info["shot_x"].append(np.nan)
                 shot_info["shot_y"].append(np.nan)
+                shot_info["shot_value"].append(np.nan)
+                shot_info["shot_type"].append(np.nan)
 
         # make sure that length of shot data matches number of shots in PBP data
         if (not (len(shot_info["shot_x"]) == len(df))) or (
@@ -1210,14 +1220,20 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
             )
             df["shot_x"] = np.nan
             df["shot_y"] = np.nan
+            df["shot_value"] = np.nan
+            df["shot_type"] = np.nan
             return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
 
         df["shot_x"] = shot_info["shot_x"]
         df["shot_y"] = shot_info["shot_y"]
+        df["shot_value"] = shot_info["shot_value"]
+        df["shot_type"] = shot_info["shot_type"]
 
     else:
         df["shot_x"] = np.nan
         df["shot_y"] = np.nan
+        df["shot_value"] = np.nan
+        df["shot_type"] = np.nan
 
     return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
 
