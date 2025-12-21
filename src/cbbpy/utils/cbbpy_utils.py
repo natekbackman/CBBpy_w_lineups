@@ -1299,14 +1299,14 @@ def _get_player_details_helper(player_id, info, game_type):
         'first_name': details.get('fNm'),
         'last_name': details.get('lNm'),
         'jersey_number': 'N/A' if prof else details.get('dspNum', '').replace('#', ''),
-        'pos': details['position'],
+        'pos': details.get('pos'),
         'status': more_details['status']['name'],
         'team': team,
         'experience': prof_league if prof else more_details.get('displayExperience'),
         'height': more_details.get('displayHeight', ''),
         'weight': more_details.get('displayWeight', ''),
         'birthplace': more_details.get('displayBirthPlace', ''),
-        'headshot': details['img']
+        'headshot': details.get('img')
         # 'date_of_birth': str(_parse_date(dob).date()) if not dob == '' else ''
     }])
 
