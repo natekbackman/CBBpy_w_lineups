@@ -1293,21 +1293,20 @@ def _get_player_details_helper(player_id, info, game_type):
 
     # dob = more_details.get('displayDOB', '')
     team = more_details['college'].get('displayName', '') if prof else more_details['team'].get('displayName', '')
-    headshot = details.get('img', '')
 
     return pd.DataFrame.from_records([{
         'player_id': str(player_id),
         'first_name': details.get('fNm'),
         'last_name': details.get('lNm'),
         'jersey_number': 'N/A' if prof else details.get('dspNum', '').replace('#', ''),
-        'pos': details.get('position', ''),
+        'pos': details['position'],
         'status': more_details['status']['name'],
         'team': team,
         'experience': prof_league if prof else more_details.get('displayExperience'),
         'height': more_details.get('displayHeight', ''),
         'weight': more_details.get('displayWeight', ''),
         'birthplace': more_details.get('displayBirthPlace', ''),
-        'headshot': headshot
+        'headshot': details['img']
         # 'date_of_birth': str(_parse_date(dob).date()) if not dob == '' else ''
     }])
 
