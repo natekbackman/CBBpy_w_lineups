@@ -1142,7 +1142,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         play_lower.str.contains('misses', regex=True, na=False) |
         play_lower.str.contains('missed', regex=True, na=False)
     )
-    df['is_fga'] = (df['is_score'] | df['is_miss']) & ~df['is_ft']
+    df['is_shot'] = (df['is_score'] | df['is_miss'])
     df['is_timeout'] = play_lower.str.contains('timeout', regex=False, na=False)
     # booleans needed: is_and1, 
 
@@ -1176,7 +1176,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         }
         shot_count = 0
 
-        for play, isshot in zip(df.play_desc, df.is_fga):
+        for play, isshot in zip(df.play_desc, df.is_shot):
             if shot_count >= len(shot_df):
                 shot_info["shot_x"].append(np.nan)
                 shot_info["shot_y"].append(np.nan)
