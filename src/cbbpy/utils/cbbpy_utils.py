@@ -1135,12 +1135,12 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
     df['is_foul'] = play_lower.str.contains('foul', regex=False, na=False)
     df['is_ft'] = play_lower.str.contains('free throw', regex=False, na=False)
     df['is_score'] = (
-        play_lower.str.contains('makes', na=False) &
-        play_lower.str.contains('made', na=False)
+        play_lower.str.contains('makes', regex=True, na=False) |
+        play_lower.str.contains('made', regex=True, na=False)
     )
     df['is_miss'] = (
-        play_lower.str.contains('misses', na=False) &
-        play_lower.str.contains('missed', na=False)
+        play_lower.str.contains('misses', regex=True, na=False) |
+        play_lower.str.contains('missed', regex=True, na=False)
     )
     df['is_fga'] = (df['is_score'] | df['is_miss']) & ~df['is_ft']
     df['is_timeout'] = play_lower.str.contains('timeout', regex=False, na=False)
