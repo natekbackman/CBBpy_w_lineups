@@ -1291,8 +1291,9 @@ def _get_player_details_helper(player_id, info, game_type):
     else:
         prof_league = 'WNBA'
 
-    dob = more_details.get('displayDOB', '')
+    # dob = more_details.get('displayDOB', '')
     team = more_details['college'].get('displayName', '') if prof else more_details['team'].get('displayName', '')
+    headshot = details.get('img', '')
 
     return pd.DataFrame.from_records([{
         'player_id': str(player_id),
@@ -1306,7 +1307,8 @@ def _get_player_details_helper(player_id, info, game_type):
         'height': more_details.get('displayHeight', ''),
         'weight': more_details.get('displayWeight', ''),
         'birthplace': more_details.get('displayBirthPlace', ''),
-        'date_of_birth': str(_parse_date(dob).date()) if not dob == '' else ''
+        'headshot': headshot
+        # 'date_of_birth': str(_parse_date(dob).date()) if not dob == '' else ''
     }])
 
 
