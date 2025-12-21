@@ -1191,11 +1191,13 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
                 shot_info["shot_type"].append(np.nan)
                 continue
 
-            # if "free throw" in play.lower():
-            #     shot_info["shot_x"].append(np.nan)
-            #     shot_info["shot_y"].append(np.nan)
-            #     shot_count += 1
-            #     continue
+            if "free throw" in play.lower():
+                shot_info["shot_x"].append(np.nan)
+                shot_info["shot_y"].append(np.nan)
+                shot_info["shot_value"].append(shot_df.shot_value.iloc[shot_count])
+                shot_info["shot_type"].append(shot_df.shot_type.iloc[shot_count])
+                shot_count += 1
+                continue
 
             shot_play = shot_df.play_desc.iloc[shot_count]
 
