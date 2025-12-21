@@ -1125,9 +1125,9 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
     )
     df['is_areb'] = (  # ambiguous rebound
         play_lower.str.contains('rebound', na=False) &
-        ~pbp['is_oreb'] &
-        ~pbp['is_dreb'] &
-        ~pbp['is_dbreb']
+        ~df['is_oreb'] &
+        ~df['is_dreb'] &
+        ~df['is_dbreb']
     )
     df['is_turnover'] = play_lower.str.contains('turnover', regex=False, na=False)
     df['is_steal'] = play_lower.str.contains('steal', regex=False, na=False)
