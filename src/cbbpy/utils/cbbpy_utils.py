@@ -1300,7 +1300,7 @@ def _get_player_details_helper(player_id, info, game_type):
         'first_name': details.get('fNm'),
         'last_name': details.get('lNm'),
         'jersey_number': 'N/A' if prof else details.get('dspNum', '').replace('#', ''),
-        'pos': details.get('position', {}).get('displayName', ''),
+        'pos': details.get('position', ''),
         'status': more_details['status']['name'],
         'team': team,
         'experience': prof_league if prof else more_details.get('displayExperience'),
