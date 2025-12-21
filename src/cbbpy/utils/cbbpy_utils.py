@@ -1113,6 +1113,106 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
 
     df = pd.DataFrame(data)
 
+    play_lower = df['play_desc'].str.lower()
+    
+    # Note: REMOVE PLAYER NAMES AND SCHOOL NAMES FROM STRINGS BEFORE MATCHING
+    # Other note: REPLACE PLAYER NAMES WITH IDS FOR STAT ATTRIBUTIONS
+    df['is_oreb'] = play_lower.str.contains('offensive rebound', regex=False, na=False)
+    df['is_dreb'] = play_lower.str.contains('defensive rebound', regex=False, na=False)
+    df['is_dbreb'] = (  # deadball rebound
+        play_lower.str.contains('deadball', na=False) &
+        play_lower.str.contains('rebound', na=False)
+    )
+    df['is_areb'] = (  # ambiguous rebound
+        play_lower.str.contains('rebound', na=False) &
+        ~pbp['is_oreb'] &
+        ~pbp['is_dreb'] &
+        ~pbp['is_dbreb']
+    )
+    df['is_turnover'] = play_lower.str.contains('turnover', regex=False, na=False)
+    df['is_steal'] = play_lower.str.contains('steal', regex=False, na=False)
+    df['is_block'] = play_lower.str.contains('block', regex=False, na=False)
+    df['is_foul'] = play_lower.str.contains('foul', regex=False, na=False)
+    df['is_ft'] = play_lower.str.contains('free throw', regex=False, na=False)
+    df['is_score'] = play_lower.str.contains('makes|made', regex=False, na=False)
+    df['is_miss'] = play_lower.str.contains('misses|missed', regex=False, na=False)
+    df['is_fga'] = play_lower.str.contains('makes|made|misses|missed', regex=False, na=False)
+    df['is_timeout'] = play_lower.str.contains('timeout', regex=False, na=False)
+    # booleans needed: is_and1, 
+
+    # Identify substitution observations
+    df['is_sub_in'] = play_lower.str.contains('subbing in', regex=False, na=False)
+    df['is_sub_out'] = play_lower.str.contains('subbing out', regex=False, na=False)
+
+    # add shot data if it exists
+    is_shotchart = "shtChrt" in gamepackage
+
+    if is_shotchart:
+        chart = gamepackage["shtChrt"]["plays"]
+
+        shotteams = [x["homeAway"] for x in chart]
+        shotdescs = [x["text"] for x in chart]
+        xs = [50 - int(x["coordinate"]["x"]) for x in chart]
+        ys = [int(x["coordinate"]["y"]) for x in chart]
+        shotvalue = [x["pointsAttempted"] for x in chart]
+        shottype = [x["type"]["txt"] for x in chart]
+
+        shot_data = {"team": shotteams, "play_desc": shotdescs, "x": xs, "y": ys, "shot_value": shotvalue, "shot_type": shottype}
+
+        shot_df = pd.DataFrame(shot_data)
+
+        # shot matching
+        shot_info = {
+            "shot_x": [],
+            "shot_y": [],
+        }
+        shot_count = 0
+
+        for play, isshot in zip(df.play_desc, df.is_fga):
+            if shot_count >= len(shot_df):
+                shot_info["shot_x"].append(np.nan)
+                shot_info["shot_y"].append(np.nan)
+                continue
+
+            if not isshot:
+                shot_info["shot_x"].append(np.nan)
+                shot_info["shot_y"].append(np.nan)
+                continue
+
+            # if "free throw" in play.lower():
+            #     shot_info["shot_x"].append(np.nan)
+            #     shot_info["shot_y"].append(np.nan)
+            #     shot_count += 1
+            #     continue
+
+            shot_play = shot_df.play_desc.iloc[shot_count]
+
+            if play == shot_play:
+                shot_info["shot_x"].append(shot_df.x.iloc[shot_count])
+                shot_info["shot_y"].append(shot_df.y.iloc[shot_count])
+                shot_count += 1
+            else:
+                shot_info["shot_x"].append(np.nan)
+                shot_info["shot_y"].append(np.nan)
+
+        # make sure that length of shot data matches number of shots in PBP data
+        if (not (len(shot_info["shot_x"]) == len(df))) or (
+            not (len(shot_info["shot_y"]) == len(df))
+        ):
+            _log.warning(
+                f'{game_id} - Shot data length does not match PBP data'
+            )
+            df["shot_x"] = np.nan
+            df["shot_y"] = np.nan
+            return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
+
+        df["shot_x"] = shot_info["shot_x"]
+        df["shot_y"] = shot_info["shot_y"]
+
+    else:
+        df["shot_x"] = np.nan
+        df["shot_y"] = np.nan
+
     return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
 
 
