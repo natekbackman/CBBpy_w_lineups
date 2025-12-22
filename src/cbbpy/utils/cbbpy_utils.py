@@ -1156,14 +1156,14 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         chart = gamepackage["shtChrt"]["plays"]
 
         # shotteams = [x["homeAway"] for x in chart]
-        # shotdescs = [x["text"] for x in chart]
+        shotdescs = [x["text"] for x in chart]
         xs = [50 - int(x["coordinate"]["x"]) for x in chart]
         ys = [int(x["coordinate"]["y"]) for x in chart]
         # shotvalue = [x["pointsAttempted"] for x in chart]
         shottype = [x["type"]["txt"] for x in chart]
 
         # shot_data = {"team": shotteams, "play_desc": shotdescs, "x": xs, "y": ys, "shot_value": shotvalue, "shot_type": shottype}
-        shot_data = {"x": xs, "y": ys, "shot_type": shottype}
+        shot_data = {"play_desc": shotdescs, "x": xs, "y": ys, "shot_type": shottype}
 
         shot_df = pd.DataFrame(shot_data)
 
@@ -1171,7 +1171,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         shot_info = {
             "shot_x": [],
             "shot_y": [],
-            "shot_value": [],
+            # "shot_value": [],
             "shot_type": [],
         }
         shot_count = 0
@@ -1234,7 +1234,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
     else:
         df["shot_x"] = np.nan
         df["shot_y"] = np.nan
-        df["shot_value"] = np.nan
+        # df["shot_value"] = np.nan
         df["shot_type"] = np.nan
 
     return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
