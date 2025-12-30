@@ -1417,6 +1417,8 @@ def _get_player_details_helper(player_id, info, game_type):
 
     # dob = more_details.get('displayDOB', '')
     team = more_details['college'].get('displayName', '') if prof else more_details['team'].get('displayName', '')
+    conf = info['stndngs'][0].get('displayName', '')
+    conf = re.search(r"2025-26 (.*?) Standings", conf).group(1)
 
     return pd.DataFrame.from_records([{
         'player_id': str(player_id),
@@ -1426,6 +1428,7 @@ def _get_player_details_helper(player_id, info, game_type):
         'pos': details.get('pos'),
         'status': more_details['status']['name'],
         'team': team,
+        'team_conf': conf,
         'experience': prof_league if prof else more_details.get('displayExperience'),
         'height': more_details.get('displayHeight', ''),
         'weight': more_details.get('displayWeight', ''),
