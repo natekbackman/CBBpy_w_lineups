@@ -1132,7 +1132,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         "court_x": court_x,
         "court_y": court_y,
         "play_result": play_results,
-        "participants": participants,
+        "participant_ids": participants,
         "participants_stats": participants_stats,
     }
 
