@@ -1042,7 +1042,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
     away_team = pbp["tms"]["away"]["nm"]
     game_date = parser.parse(gamepackage["gmInfo"]["dtTm"])
 
-    all_plays = [play for period in pbp["playGrps"] for play in period]
+    all_plays = pbp["plays"]
 
     # check if PBP exists
     if len(all_plays) <= 0:
