@@ -1049,6 +1049,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         _log.warning(f'{game_id} - No PBP available')
         return pd.DataFrame([])
 
+    play_ids = [x["id"] if "id" in x else "" for x in all_plays]
     descs = [x["text"] if "text" in x else "" for x in all_plays]
     teams = [
         (
@@ -1122,6 +1123,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
         "game_id": game_id,
         "home_team": home_team,
         "away_team": away_team,
+        "play_id": play_ids,
         "play_desc": descs,
         "home_score": hscores,
         "away_score": ascores,
@@ -1263,7 +1265,7 @@ def _get_game_pbp_helper(gamepackage, game_id, game_type):
     #     # df["shot_value"] = np.nan
     #     df["shot_type"] = np.nan
 
-    return df.sort_values(by=["half", "secs_left_half"], ascending=[True, False])
+    return df.sort_values(by=["half", "secs_left_half", "play_id"], ascending=[True, False, True])
 
 
 def _get_game_info_helper(gamepackage, game_id, game_type):
